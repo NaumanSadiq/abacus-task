@@ -7,7 +7,7 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
-class EventServiceProvider extends ServiceProvider
+class   EventServiceProvider extends ServiceProvider
 {
     /**
      * The event to listener mappings for the application.
@@ -17,6 +17,12 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        \Illuminate\Auth\Events\Login::class => [
+            \App\Listeners\StartLoginSession::class,
+        ],
+        \Illuminate\Auth\Events\Logout::class => [
+            \App\Listeners\EndLoginSession::class,
         ],
     ];
 

@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Controller\AuthController;
+use App\Http\Controllers\Controller\CheckoutController;
+use App\Http\Controllers\Controller\LoginDurationController;
+use App\Http\Controllers\Controller\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +17,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::post('/register',[AuthController::class,'register']);
+Route::post('/login',[AuthController::class,'login']);
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::post('/logout',[AuthController::class,'logout']);
+
+    // (1) checkout page data
+    Route::get('/products',[ProductController::class,'index']);
+
+    // (2)-(4) checkout & payment
+    Route::post('/checkout/orders',[CheckoutController::class,'createOrder']);
+    Route::post('/checkout/orders/{order}/pay/simulate',[CheckoutController::class,'simulatePayment']); // or Stripe flow
+
+    // (5) login duration
+    Route::get('/me/login-duration',[LoginDurationController::class,'total']);
 });
