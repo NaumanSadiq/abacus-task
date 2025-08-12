@@ -3,65 +3,53 @@
 namespace App\Http\Controllers\Controller;
 
 use App\Http\Controllers\Controller;
-use App\Models\LoginSession;
+use App\Services\LoginDurationService;
+use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LoginDurationController extends Controller
 {
-    public function total(Request $req): \Illuminate\Http\JsonResponse
+    use ApiResponse;
+
+    protected LoginDurationService $loginDurationService;
+
+    public function __construct(LoginDurationService $loginDurationService)
     {
-        $totalSeconds = LoginSession::where('user_id', $req->user()->id)
-            ->whereNotNull('duration_seconds')
-            ->sum('duration_seconds');
-            
-        $totalMinutes = round($totalSeconds / 60, 2);
-        $totalHours = round($totalSeconds / 3600, 2);
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'total_seconds' => $totalSeconds,
-                'total_minutes' => $totalMinutes,
-                'total_hours' => $totalHours,
-                'formatted' => [
-                    'seconds' => $totalSeconds,
-                    'minutes' => $totalMinutes,
-                    'hours' => $totalHours
-                ]
-            ]
-        ]);
+        $this->loginDurationService = $loginDurationService;
     }
 
-    public function sessions(Request $req): \Illuminate\Http\JsonResponse
+    /**
+     * Get total login duration for the authenticated user
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function total(Request $request): JsonResponse
     {
-        $sessions = LoginSession::where('user_id', $req->user()->id)
-            ->orderBy('logged_in_at', 'desc')
-            ->get()
-            ->map(function ($session) {
-                $duration = $session->duration_seconds ?? 0;
-                $durationMinutes = round($duration / 60, 2);
-                $durationHours = round($duration / 3600, 2);
-                
-                return [
-                    'id' => $session->id,
-                    'logged_in_at' => $session->logged_in_at->format('Y-m-d H:i:s'),
-                    'logged_out_at' => $session->logged_out_at ? $session->logged_out_at->format('Y-m-d H:i:s') : null,
-                    'duration_seconds' => $duration,
-                    'duration_minutes' => $durationMinutes,
-                    'duration_hours' => $durationHours,
-                    'status' => $session->logged_out_at ? 'completed' : 'active',
-                    'auth_guard' => $session->auth_guard
-                ];
-            });
+        try {
+            $durationData = $this->loginDurationService->getTotalDuration($request->user()->id);
+            
+            return $this->successResponse($durationData, 'Login duration retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve login duration: ' . $e->getMessage());
+        }
+    }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'sessions' => $sessions,
-                'total_sessions' => $sessions->count(),
-                'active_sessions' => $sessions->where('status', 'active')->count(),
-                'completed_sessions' => $sessions->where('status', 'completed')->count()
-            ]
-        ]);
+    /**
+     * Get login sessions for the authenticated user
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function sessions(Request $request): JsonResponse
+    {
+        try {
+            $sessionsData = $this->loginDurationService->getSessions($request->user()->id);
+            
+            return $this->successResponse($sessionsData, 'Login sessions retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve login sessions: ' . $e->getMessage());
+        }
     }
 }

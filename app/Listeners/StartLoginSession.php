@@ -2,17 +2,17 @@
 
 namespace App\Listeners;
 
+use App\Services\LoginDurationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
 class StartLoginSession
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
+    protected LoginDurationService $loginDurationService;
+
+    public function __construct(LoginDurationService $loginDurationService)
     {
-        //
+        $this->loginDurationService = $loginDurationService;
     }
 
     /**
@@ -20,10 +20,9 @@ class StartLoginSession
      */
     public function handle(\Illuminate\Auth\Events\Login $event): void
     {
-        \App\Models\LoginSession::create([
-            'user_id' => $event->user->id,
-            'logged_in_at' => now(),
-            'auth_guard' => $event->guard ?? 'sanctum',
-        ]);
+        $this->loginDurationService->createSession(
+            $event->user->id,
+            $event->guard ?? 'sanctum'
+        );
     }
 }

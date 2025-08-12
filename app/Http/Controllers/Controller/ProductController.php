@@ -4,46 +4,53 @@ namespace App\Http\Controllers\Controller;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\ProductService;
+use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
-    {
-        $products = Product::select('id', 'name', 'description', 'price_cents', 'stock')
-            ->where('stock', '>', 0)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'description' => $product->description,
-                    'price_cents' => $product->price_cents,
-                    'price_formatted' => '$' . number_format($product->price_cents / 100, 2),
-                    'stock' => $product->stock,
-                    'available' => $product->stock > 0
-                ];
-            });
+    use ApiResponse;
 
-        return response()->json([
-            'success' => true,
-            'data' => $products
-        ]);
+    protected ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
     }
 
-    public function show(Product $product)
+    /**
+     * Get all available products
+     *
+     * @return JsonResponse
+     */
+    public function index(): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'description' => $product->description,
-                'price_cents' => $product->price_cents,
-                'price_formatted' => '$' . number_format($product->price_cents / 100, 2),
-                'stock' => $product->stock,
-                'available' => $product->stock > 0
-            ]
-        ]);
+        try {
+            $products = $this->productService->getAllProducts();
+            $formattedProducts = $this->productService->formatProducts($products);
+            
+            return $this->successResponse($formattedProducts, 'Products retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve products: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get a single product
+     *
+     * @param Product $product
+     * @return JsonResponse
+     */
+    public function show(Product $product): JsonResponse
+    {
+        try {
+            $formattedProduct = $this->productService->formatProduct($product);
+            
+            return $this->successResponse($formattedProduct, 'Product retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve product: ' . $e->getMessage());
+        }
     }
 }

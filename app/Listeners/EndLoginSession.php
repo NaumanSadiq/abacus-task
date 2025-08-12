@@ -2,30 +2,24 @@
 
 namespace App\Listeners;
 
+use App\Services\LoginDurationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
 class EndLoginSession
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
+    protected LoginDurationService $loginDurationService;
+
+    public function __construct(LoginDurationService $loginDurationService)
     {
-        //
+        $this->loginDurationService = $loginDurationService;
     }
 
     /**
      * Handle the event.
      */
-    public function handle(\Illuminate\Auth\Events\Logout $event): void {
-        $session = \App\Models\LoginSession::where('user_id',$event->user->id)
-            ->whereNull('logged_out_at')->latest()->first();
-        if ($session) {
-            $session->update([
-                'logged_out_at'=>now(),
-                'duration_seconds'=>now()->diffInSeconds($session->logged_in_at),
-            ]);
-        }
+    public function handle(\Illuminate\Auth\Events\Logout $event): void
+    {
+        $this->loginDurationService->endSession($event->user->id);
     }
 }
