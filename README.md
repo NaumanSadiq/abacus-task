@@ -1,66 +1,314 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Abacus Task - Laravel 10 API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive Laravel 10 API application that implements a checkout system with MySQL database, featuring product management, order processing, simulated payments, and login duration tracking.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **User Authentication**: Register, login, and logout with Laravel Sanctum
+- **Product Management**: View products with stock and pricing information
+- **Checkout System**: View checkout data and create orders
+- **Payment Processing**: Simulated payment system (90% success rate)
+- **Order Management**: Complete order lifecycle with status tracking
+- **Login Duration Tracking**: Monitor user session durations
+- **MySQL Database**: Robust data storage with proper relationships
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.1 or higher
+- Laravel 10
+- MySQL 5.7 or higher
+- Composer
+- Node.js & NPM (for frontend assets)
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd abacus-task
+   ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-## Laravel Sponsors
+4. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+5. **Configure database in .env file**
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=abacus_task
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
 
-### Premium Partners
+6. **Run database migrations**
+   ```bash
+   php artisan migrate
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+7. **Seed the database with sample data**
+   ```bash
+   php artisan db:seed
+   ```
+
+8. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+
+## API Endpoints
+
+### Authentication
+
+#### Register User
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+}
+```
+
+#### Login User
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+    "email": "john@example.com",
+    "password": "password123"
+}
+```
+
+#### Logout User
+```http
+POST /api/auth/logout
+Authorization: Bearer {token}
+```
+
+### Products
+
+#### Get All Products
+```http
+GET /api/products
+Authorization: Bearer {token}
+```
+
+#### Get Single Product
+```http
+GET /api/products/{id}
+Authorization: Bearer {token}
+```
+
+### Checkout
+
+#### View Checkout Data
+```http
+POST /api/checkout/view
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "items": [
+        {
+            "product_id": 1,
+            "quantity": 2
+        },
+        {
+            "product_id": 3,
+            "quantity": 1
+        }
+    ]
+}
+```
+
+#### Create Order
+```http
+POST /api/checkout
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "items": [
+        {
+            "product_id": 1,
+            "quantity": 2
+        }
+    ],
+    "currency": "USD"
+}
+```
+
+#### Simulate Payment
+```http
+POST /api/checkout/{order_id}/payment/simulate
+Authorization: Bearer {token}
+```
+
+### Login Duration Tracking
+
+#### Get Total Login Duration
+```http
+GET /api/login-duration/total
+Authorization: Bearer {token}
+```
+
+#### Get Login Sessions
+```http
+GET /api/login-duration/sessions
+Authorization: Bearer {token}
+```
+
+## Database Schema
+
+### Tables
+
+- **users**: User accounts and authentication
+- **products**: Product catalog with pricing and stock
+- **orders**: Order information and status
+- **order_items**: Individual items within orders
+- **payments**: Payment records and status
+- **login_sessions**: User login session tracking
+
+### Key Relationships
+
+- Users have many Orders
+- Orders have many OrderItems
+- Orders have one Payment
+- Users have many LoginSessions
+
+## Sample Data
+
+The seeder creates:
+- Test user: `test@example.com` / `password123`
+- 8 sample products with realistic pricing and descriptions
+
+## Payment Simulation
+
+The system includes a simulated payment processor that:
+- Has a 90% success rate
+- Generates unique transaction IDs
+- Updates order and payment statuses
+- Provides detailed success/failure responses
+
+## Testing the API
+
+### 1. Register/Login
+```bash
+# Register a new user
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"user@test.com","password":"password123","password_confirmation":"password123"}'
+
+# Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@test.com","password":"password123"}'
+```
+
+### 2. View Products
+```bash
+# Get all products (use token from login)
+curl -X GET http://localhost:8000/api/products \
+  -H "Authorization: Bearer {your_token}"
+```
+
+### 3. Checkout Process
+```bash
+# View checkout data
+curl -X POST http://localhost:8000/api/checkout/view \
+  -H "Authorization: Bearer {your_token}" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[{"product_id":1,"quantity":2}]}'
+
+# Create order
+curl -X POST http://localhost:8000/api/checkout \
+  -H "Authorization: Bearer {your_token}" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[{"product_id":1,"quantity":2}]}'
+
+# Simulate payment (use order ID from previous response)
+curl -X POST http://localhost:8000/api/checkout/{order_id}/payment/simulate \
+  -H "Authorization: Bearer {your_token}"
+```
+
+### 4. Login Duration
+```bash
+# Get total login duration
+curl -X GET http://localhost:8000/api/login-duration/total \
+  -H "Authorization: Bearer {your_token}"
+
+# Get login sessions
+curl -X GET http://localhost:8000/api/login-duration/sessions \
+  -H "Authorization: Bearer {your_token}"
+```
+
+## Error Handling
+
+The API provides consistent error responses:
+- HTTP status codes for different error types
+- Detailed error messages
+- Validation error arrays when applicable
+- Success/failure flags in responses
+
+## Security Features
+
+- Laravel Sanctum for API authentication
+- CSRF protection
+- Input validation and sanitization
+- Database transaction safety
+- User authorization checks
+
+## Development
+
+### Running Tests
+```bash
+php artisan test
+```
+
+### Code Quality
+```bash
+# Laravel Pint for code formatting
+./vendor/bin/pint
+
+# PHPStan for static analysis
+./vendor/bin/phpstan analyse
+```
+
+### Database
+```bash
+# Reset and reseed
+php artisan migrate:fresh --seed
+
+# View database
+php artisan tinker
+```
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
