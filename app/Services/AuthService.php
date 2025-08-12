@@ -74,8 +74,9 @@ class AuthService
      */
     public function logout(User $user): bool
     {
+        // For Sanctum, we only need to delete the current token
+        // The auth()->logout() method doesn't exist for API guards
         $user->currentAccessToken()->delete();
-        auth()->logout();
         
         return true;
     }
