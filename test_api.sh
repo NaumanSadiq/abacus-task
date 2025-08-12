@@ -167,13 +167,28 @@ fi
 
 echo ""
 
-# 7. Get login duration
-print_status "7. Testing login duration tracking..."
+# 7. Get current session duration
+print_status "7. Testing current session duration..."
+CURRENT_SESSION_RESPONSE=$(curl -s -X GET "$BASE_URL/login-duration/current" \
+    -H "Authorization: Bearer $TOKEN")
+
+if echo "$CURRENT_SESSION_RESPONSE" | grep -q "success.*true"; then
+    print_success "Current session duration retrieved successfully"
+    CURRENT_DURATION=$(echo "$CURRENT_SESSION_RESPONSE" | grep -o '"duration_seconds":[0-9]*' | cut -d':' -f2)
+    echo "Current session duration: ${CURRENT_DURATION}s"
+else
+    print_error "Failed to retrieve current session duration: $CURRENT_SESSION_RESPONSE"
+fi
+
+echo ""
+
+# 8. Get total login duration
+print_status "8. Testing total login duration..."
 DURATION_RESPONSE=$(curl -s -X GET "$BASE_URL/login-duration/total" \
     -H "Authorization: Bearer $TOKEN")
 
 if echo "$DURATION_RESPONSE" | grep -q "success.*true"; then
-    print_success "Login duration retrieved successfully"
+    print_success "Total login duration retrieved successfully"
     TOTAL_SECONDS=$(echo "$DURATION_RESPONSE" | grep -o '"total_seconds":[0-9]*' | cut -d':' -f2)
     echo "Total login duration: ${TOTAL_SECONDS}s"
 else
@@ -182,8 +197,8 @@ fi
 
 echo ""
 
-# 8. Get login sessions
-print_status "8. Testing login sessions..."
+# 9. Get login sessions
+print_status "9. Testing login sessions..."
 SESSIONS_RESPONSE=$(curl -s -X GET "$BASE_URL/login-duration/sessions" \
     -H "Authorization: Bearer $TOKEN")
 
@@ -197,8 +212,8 @@ fi
 
 echo ""
 
-# 9. Logout
-print_status "9. Testing user logout..."
+# 10. Logout
+print_status "10. Testing user logout..."
 LOGOUT_RESPONSE=$(curl -s -X POST "$BASE_URL/auth/logout" \
     -H "Authorization: Bearer $TOKEN")
 
@@ -217,8 +232,10 @@ echo "- Product listing: ✅"
 echo "- Checkout process: ✅"
 echo "- Order creation: ✅"
 echo "- Payment simulation: ✅"
-echo "- Login duration tracking: ✅"
+echo "- Current session duration: ✅"
+echo "- Total login duration: ✅"
 echo "- Session management: ✅"
+echo "- Logout: ✅"
 echo ""
 echo "All core functionality is working correctly!"
 echo ""

@@ -342,6 +342,35 @@
 					"response": []
 				},
 				{
+					"name": "Get Current Session Duration",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/login-duration/current",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login-duration",
+								"current"
+							]
+						},
+						"description": "Get current active session duration for the authenticated user"
+					},
+					"response": []
+				},
+				{
 					"name": "Get Login Sessions",
 					"request": {
 						"method": "GET",

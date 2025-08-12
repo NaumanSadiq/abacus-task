@@ -52,4 +52,25 @@ class LoginDurationController extends Controller
             return $this->errorResponse('Failed to retrieve login sessions: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Get current session duration for the authenticated user
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function current(Request $request): JsonResponse
+    {
+        try {
+            $currentSession = $this->loginDurationService->getCurrentSessionDuration($request->user()->id);
+            
+            if (!$currentSession) {
+                return $this->notFoundResponse('No active session found');
+            }
+            
+            return $this->successResponse($currentSession, 'Current session duration retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve current session duration: ' . $e->getMessage());
+        }
+    }
 }

@@ -42,4 +42,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Login duration tracking
     Route::get('/login-duration/total', [LoginDurationController::class, 'total']);
     Route::get('/login-duration/sessions', [LoginDurationController::class, 'sessions']);
+    Route::get('/login-duration/current', [LoginDurationController::class, 'current']);
 });

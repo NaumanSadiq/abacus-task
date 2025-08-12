@@ -170,6 +170,12 @@ GET /api/login-duration/total
 Authorization: Bearer {token}
 ```
 
+#### Get Current Session Duration
+```http
+GET /api/login-duration/current
+Authorization: Bearer {token}
+```
+
 #### Get Login Sessions
 ```http
 GET /api/login-duration/sessions
